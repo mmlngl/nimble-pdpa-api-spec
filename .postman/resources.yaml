@@ -5,3 +5,12 @@ workspace:
 localResources:
   collections:
     - ../postman-collection.json
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  environments:
+    ../postman/environments/Live.environment.yaml: b4ad7684-e8cc-581a-9e40-cec08dff3ddf
+  collections:
+    ../postman/collections/FeedFast PDPA Consent Management API MEEE: 26808089-516ecdcc-f2a5-4255-b4fc-42e7ae283dc6
+    ../postman/collections/FeedFast PDPA Consent Management API: 26808089-32de84a2-e425-4506-b4fc-b9c700d8ccf4
