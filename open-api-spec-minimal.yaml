@@ -1,0 +1,298 @@
+openapi: 3.0.0
+info:
+  title: FeedFast PDPA Consent Management API
+  version: 1.0.0
+  description: >
+    Minimal API for managing customer consent in compliance with PDPA regulations.
+    Covers T&C versioning and per-customer opt-in / opt-out preference tracking.
+    Customer records are assumed to already exist in the system.
+
+tags:
+  - name: Terms & Conditions
+    description: Manage published T&C versions
+  - name: Preferences
+    description: Manage per-customer T&C consent preferences
+
+paths:
+  /terms-and-conditions:
+    post:
+      tags: [Terms & Conditions]
+      summary: Publish a new T&C version
+      description: >
+        Creates a new T&C version. The `id` is auto-assigned (integer, monotonically
+        increasing) to allow simple version ordering. `publishedOn` is set server-side.
+      operationId: createTermsAndConditions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TAndCCreate"
+            example:
+              content: "Updated terms and conditions text reflecting PDPA requirements."
+      responses:
+        "201":
+          description: T&C version created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TAndC"
+              example:
+                id: 2
+                content: "Updated terms and conditions text reflecting PDPA requirements."
+                publishedOn: "2025-03-01"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /terms-and-conditions/latest:
+    get:
+      tags: [Terms & Conditions]
+      summary: Get the latest T&C version
+      description: >
+        Returns the T&C version with the highest `id`. This is the version
+        the app should present to customers on login.
+      operationId: getLatestTermsAndConditions
+      responses:
+        "200":
+          description: The latest T&C version.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TAndC"
+              example:
+                id: 2
+                content: "Updated terms and conditions text reflecting PDPA requirements."
+                publishedOn: "2025-03-01"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /terms-and-conditions/{tAndCId}:
+    parameters:
+      - $ref: "#/components/parameters/tAndCId"
+
+    get:
+      tags: [Terms & Conditions]
+      summary: Get a specific T&C version
+      description: >
+        Returns the requested T&C version. Allows customers to review a specific
+        T&C they previously agreed to.
+      operationId: getTermsAndConditions
+      responses:
+        "200":
+          description: The requested T&C version.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TAndC"
+              example:
+                id: 1
+                content: "Initial terms and conditions text."
+                publishedOn: "2024-01-15"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /customers/{customerId}/preferences/{tAndCId}:
+    parameters:
+      - $ref: "#/components/parameters/customerId"
+      - $ref: "#/components/parameters/tAndCId"
+
+    get:
+      tags: [Preferences]
+      summary: Get or create a T&C preference for a customer
+      description: >
+        Returns the customer's preference for the specified T&C version.
+        If no preference record exists yet (i.e. the customer has not been
+        presented with this version before), a new record is created with
+        `preference = PENDING` and returned. This is the endpoint the app
+        calls on login to determine whether the customer needs to be shown
+        the consent screen.
+      operationId: getOrCreatePreference
+      responses:
+        "200":
+          description: Existing preference record returned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TAndCPreference"
+              example:
+                customerId: "cust_abc123"
+                tAndCId: 2
+                preference: "OPT-IN"
+                lastUpdated: "2025-03-02T14:22:00Z"
+        "201":
+          description: New PENDING preference record created and returned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TAndCPreference"
+              example:
+                customerId: "cust_abc123"
+                tAndCId: 2
+                preference: "PENDING"
+                lastUpdated: "2025-03-01T00:00:00Z"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags: [Preferences]
+      summary: Submit a customer's T&C preference
+      description: >
+        Updates the customer's preference for the specified T&C version to
+        either `OPT-IN` or `OPT-OUT`. `PENDING` is not an accepted value here —
+        it is only set by the system on record creation. `lastUpdated` is
+        refreshed server-side on every update.
+      operationId: updatePreference
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PreferenceUpdate"
+            example:
+              preference: "OPT-IN"
+      responses:
+        "200":
+          description: Preference updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TAndCPreference"
+              example:
+                customerId: "cust_abc123"
+                tAndCId: 2
+                preference: "OPT-IN"
+                lastUpdated: "2025-03-02T14:22:00Z"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+# ─────────────────────────────────────────────
+# Components
+# ─────────────────────────────────────────────
+
+components:
+  parameters:
+    customerId:
+      name: customerId
+      in: path
+      required: true
+      description: The unique identifier of the customer.
+      schema:
+        type: string
+      example: "cust_abc123"
+
+    tAndCId:
+      name: tAndCId
+      in: path
+      required: true
+      description: The integer identifier of the T&C version.
+      schema:
+        type: integer
+      example: 2
+
+  schemas:
+    TAndC:
+      type: object
+      description: A published version of the Terms & Conditions.
+      required: [id, content, publishedOn]
+      properties:
+        id:
+          type: integer
+          description: Auto-assigned integer. Higher value = newer version.
+          example: 2
+        content:
+          type: string
+          description: Full text of the T&C version.
+          example: "Updated terms and conditions text reflecting PDPA requirements."
+        publishedOn:
+          type: string
+          format: date
+          description: Date the T&C version was published (set server-side).
+          example: "2025-03-01"
+
+    TAndCCreate:
+      type: object
+      description: Payload for publishing a new T&C version.
+      required: [content]
+      properties:
+        content:
+          type: string
+          description: Full text of the new T&C version.
+          example: "Updated terms and conditions text reflecting PDPA requirements."
+
+    TAndCPreference:
+      type: object
+      description: >
+        A customer's consent preference for a specific T&C version.
+        Composite primary key: (customerId, tAndCId).
+      required: [customerId, tAndCId, preference, lastUpdated]
+      properties:
+        customerId:
+          type: string
+          description: References CUSTOMER.id.
+          example: "cust_abc123"
+        tAndCId:
+          type: integer
+          description: References T_AND_C.id.
+          example: 2
+        preference:
+          $ref: "#/components/schemas/PreferenceEnum"
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Timestamp of the last update (auto-managed server-side).
+          example: "2025-03-02T14:22:00Z"
+
+    PreferenceEnum:
+      type: string
+      description: >
+        The customer's consent state.
+        - `PENDING`: customer has been presented with the T&C but has not yet responded.
+        - `OPT-IN`: customer has explicitly accepted.
+        - `OPT-OUT`: customer has explicitly declined.
+      enum: [PENDING, OPT-IN, OPT-OUT]
+      example: "OPT-IN"
+
+    PreferenceUpdate:
+      type: object
+      description: Payload for submitting a customer's preference. Only OPT-IN or OPT-OUT are accepted.
+      required: [preference]
+      properties:
+        preference:
+          type: string
+          enum: [OPT-IN, OPT-OUT]
+          description: The customer's explicit consent decision.
+          example: "OPT-IN"
+
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: "NOT_FOUND"
+        message:
+          type: string
+          example: "The requested resource was not found."
+
+  responses:
+    BadRequest:
+      description: Invalid request payload.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: "BAD_REQUEST"
+            message: "preference must be one of OPT-IN, OPT-OUT."
+
+    NotFound:
+      description: The requested resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: "NOT_FOUND"
+            message: "The requested resource was not found."
