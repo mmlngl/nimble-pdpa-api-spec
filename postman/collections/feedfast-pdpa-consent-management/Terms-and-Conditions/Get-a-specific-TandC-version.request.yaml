@@ -1,10 +1,14 @@
 $kind: http-request
-name: 'Get a specific T&C version'
+name: "Get a specific T&C version"
 description: |-
   Returns a specific T&C version by `tAndCId`. Useful for letting customers review a version they previously agreed to.
 
   **Path param:** `tAndCId` (integer) — the ID of the T&C version.
   **Returns:** the matching T&C object with `id`, `content`, and `publishedOn`.
 method: GET
-url: '{{baseUrl}}/terms-and-conditions/{{tAndCId}}'
+url: "{{baseUrl}}/terms-and-conditions/{{tAndCId}}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
 order: 3000

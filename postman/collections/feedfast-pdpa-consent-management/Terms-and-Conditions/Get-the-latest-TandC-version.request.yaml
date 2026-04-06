@@ -1,9 +1,13 @@
 $kind: http-request
-name: 'Get the latest T&C version'
+name: "Get the latest T&C version"
 description: |-
   Returns the T&C version with the highest `id`. This is the version the app should present to customers on login.
 
   **Returns:** the latest T&C object with `id`, `content`, and `publishedOn`.
 method: GET
-url: '{{baseUrl}}/terms-and-conditions/latest'
+url: "{{baseUrl}}/terms-and-conditions/latest"
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
 order: 2000
