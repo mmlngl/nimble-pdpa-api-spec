@@ -1,5 +1,11 @@
 $kind: http-request
 name: 'Submit a customer T&C preference'
+description: |-
+  Updates the customer's preference for the specified T&C version. Only `OPT-IN` or `OPT-OUT` are accepted — `PENDING` is system-managed and cannot be set here. `lastUpdated` is refreshed server-side on every update.
+
+  **Path params:** `customerId` (string), `tAndCId` (integer).
+  **Request body:** `preference` (string, required) — either `"OPT-IN"` or `"OPT-OUT"`.
+  **Returns:** the updated preference record.
 method: PATCH
 url: '{{baseUrl}}/customers/{{customerId}}/preferences/{{tAndCId}}'
 order: 2000

@@ -1,5 +1,10 @@
 $kind: http-request
 name: 'Get or create a T&C preference'
+description: |-
+  Returns the customer's preference for the specified T&C version. If no record exists yet, one is auto-created with `preference = PENDING` and returned (HTTP 201). This is the endpoint the app calls on login to decide whether to show the consent screen.
+
+  **Path params:** `customerId` (string), `tAndCId` (integer).
+  **Returns:** a preference record with `customerId`, `tAndCId`, `preference` (PENDING | OPT-IN | OPT-OUT), and `lastUpdated`.
 method: GET
 url: '{{baseUrl}}/customers/{{customerId}}/preferences/{{tAndCId}}'
 order: 1000

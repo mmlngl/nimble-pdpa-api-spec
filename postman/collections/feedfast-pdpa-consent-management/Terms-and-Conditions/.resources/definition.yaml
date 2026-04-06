@@ -1,0 +1,3 @@
+$kind: collection
+name: 'Terms & Conditions'
+description: Endpoints for managing published T&C versions. Use these to publish new versions and retrieve existing ones by ID or get the latest.

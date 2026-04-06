@@ -1,5 +1,10 @@
 $kind: http-request
 name: 'Publish a new T&C version'
+description: |-
+  Creates a new T&C version. The `id` is auto-assigned (integer, monotonically increasing) to allow simple version ordering. `publishedOn` is set server-side.
+
+  **Request body:** `content` (string, required) — full text of the new T&C version.
+  **Returns:** the created T&C object with `id`, `content`, and `publishedOn`.
 method: POST
 url: '{{baseUrl}}/terms-and-conditions'
 order: 1000
