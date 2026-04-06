@@ -1,0 +1,11 @@
+name: Live
+values:
+  - key: baseUrl
+    value: "https://feedfast.com"
+    enabled: true
+  - key: customerId
+    value: "cust_abc123"
+    enabled: true
+  - key: tAndCId
+    value: 2
+    enabled: true
