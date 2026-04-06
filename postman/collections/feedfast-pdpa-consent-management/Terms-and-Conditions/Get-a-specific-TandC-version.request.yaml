@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'Get a specific T&C version'
+method: GET
+url: '{{baseUrl}}/terms-and-conditions/{{tAndCId}}'
+order: 3000

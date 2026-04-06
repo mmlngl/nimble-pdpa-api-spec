@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'Publish a new T&C version'
+method: POST
+url: '{{baseUrl}}/terms-and-conditions'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {"content": "Updated terms and conditions text reflecting PDPA requirements."}

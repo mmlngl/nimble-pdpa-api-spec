@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'Get or create a T&C preference'
+method: GET
+url: '{{baseUrl}}/customers/{{customerId}}/preferences/{{tAndCId}}'
+order: 1000

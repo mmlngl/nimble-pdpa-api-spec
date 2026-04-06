@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'Get the latest T&C version'
+method: GET
+url: '{{baseUrl}}/terms-and-conditions/latest'
+order: 2000

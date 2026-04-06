@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'Submit a customer T&C preference'
+method: PATCH
+url: '{{baseUrl}}/customers/{{customerId}}/preferences/{{tAndCId}}'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {"preference": "OPT-IN"}
