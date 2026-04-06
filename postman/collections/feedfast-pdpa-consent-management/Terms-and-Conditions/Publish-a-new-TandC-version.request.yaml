@@ -10,7 +10,7 @@ url: "{{baseUrl}}/terms-and-conditions"
 auth:
   type: bearer
   credentials:
-    token: "{{token}}"
+    token: "{{authToken}}"
 order: 1000
 headers:
   - key: Content-Type

@@ -1,11 +1,18 @@
 name: Live
 values:
+  - key: authToken
+    value: fake-token
+    enabled: true
+    description: Auth Token
   - key: baseUrl
     value: "https://feedfast.com"
     enabled: true
+    description: FeedFast Auth Server
   - key: customerId
-    value: "cust_abc123"
+    value: cust_abc123
     enabled: true
+    description: Customer ID
   - key: tAndCId
-    value: 2
+    value: "2"
     enabled: true
+    description: T&Cs Version ID

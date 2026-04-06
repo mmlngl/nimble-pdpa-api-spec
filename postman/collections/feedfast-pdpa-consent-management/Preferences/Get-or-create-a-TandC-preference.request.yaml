@@ -16,5 +16,5 @@ url: "{{baseUrl}}/customers/{{customerId}}/preferences/{{tAndCId}}"
 auth:
   type: bearer
   credentials:
-    token: "{{token}}"
+    token: "{{authToken}}"
 order: 1000

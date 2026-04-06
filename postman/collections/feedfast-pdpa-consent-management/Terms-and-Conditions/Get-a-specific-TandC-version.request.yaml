@@ -10,5 +10,5 @@ url: "{{baseUrl}}/terms-and-conditions/{{tAndCId}}"
 auth:
   type: bearer
   credentials:
-    token: "{{token}}"
+    token: "{{authToken}}"
 order: 3000

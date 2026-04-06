@@ -9,5 +9,5 @@ url: "{{baseUrl}}/terms-and-conditions/latest"
 auth:
   type: bearer
   credentials:
-    token: "{{token}}"
+    token: "{{authToken}}"
 order: 2000
