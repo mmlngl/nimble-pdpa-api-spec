@@ -13,27 +13,26 @@ You are asked to:
 
 ## Approach
 
-# Summary
+### Summary
 
-- Customer records already exist in the system
-- Whenever Customers are presented with new T&C's, a new `T_AND_C_PREFERENCE` record is created with `PENDING` status
-- Customers can then opt-in or opt-out and their preference is persisted.
+- Customer records already exist in the system.
+- Each published T&C version is stored in `T_AND_C`.
+- When a customer is presented with a new T&C version, a `T_AND_C_PREFERENCE` record is created with `PENDING` status.
+- The customer must explicitly choose `OPT_IN` or `OPT_OUT` before continuing.
+- Marketing communication preferences are managed separately in `MARKETING_PREFERENCE`, per channel.
+- T&C consent and marketing preferences are modelled separately due to different lifecycle and business rules.
+
+### Entity-Relationship Diagram
 
 ```mermaid
 erDiagram
-    direction LR
-    CUSTOMER 1 to many T_AND_C_PREFERENCE : has
+		direction LR
     T_AND_C 1 to many T_AND_C_PREFERENCE : applies_to
+    CUSTOMER 1 to many T_AND_C_PREFERENCE : has
+    CUSTOMER 1 to many MARKETING_PREFERENCE : has
 
     CUSTOMER {
         string id PK
-    }
-
-    T_AND_C_PREFERENCE {
-        int customerId PK, FK "Customer.id"
-        int TAndCId PK, FK "T_AND_C.id"
-        enum preference "`PENDING`, `OPT-IN`, `OPT-OUT`. (default: `PENDING`)"
-        date lastUpdated "auto now"
     }
 
     T_AND_C {
@@ -42,38 +41,43 @@ erDiagram
         date publishedOn
     }
 
-```
+    MARKETING_PREFERENCE {
+        int customerId PK, FK "CUSTOMER.id"
+        enum channel PK "`EMAIL`, `SMS`, `PUSH`"
+        enum preference "`PENDING`, `OPT_IN`, `OPT_OUT`"
+        date lastUpdated "auto now"
+    }
 
-# Notes
-
-- Other `CUSTOMER` fields omitted for brevity
-- `T_AND_C_PREFERENCE` has a composite primary key formed from `customerId` and `TandCId`
-- `T_AND_C.id` uses `int` for simple version ordering
-- When a customer is first presented with a `T_AND_C` version, create a `T_AND_C_PREFERENCE` row with preference = `PENDING`
-- When the customer submits a preference, update preference to either `OPT-IN` or `OPT-OUT`
-- On delete of `T_AND_C`, `CASCADE` delete related `T_AND_C_PREFERENCE` rows
-- On delete of `CUSTOMER`, `CASCADE` delete related `T_AND_C_PREFERENCE` rows
-
-# Lifecycle
-
-```mermaid
-sequenceDiagram
-    FeedFast->>FeedFast: Publish latest T&C version
-    Customer->>App: Open app
-    App->>FeedFast: Request latest T&C status
-    FeedFast->>FeedFast: Get or create T&C preference
-    FeedFast->>App: Return latest T&C + preference state
-    App->>Customer: Present latest T&C
-    Customer->>App: OPT-IN or OPT-OUT
-    App->>FeedFast: Submit preference
-    FeedFast->>FeedFast: Persist preference
-    FeedFast->>App: Preference accepted
-    App->>Customer: Grant access
-    Customer->>Customer: Continue using app
+    T_AND_C_PREFERENCE {
+        int customerId PK, FK "CUSTOMER.id"
+        int TAndCId PK, FK "T_AND_C.id"
+        enum preference "`PENDING`, `OPT_IN`, `OPT_OUT`"
+        date lastUpdated "auto now"
+    }
 
 ```
 
-# Traps Avoided
+#### Domain Rules
 
-- Storing preferences as `bool` – does `FALSE` mean `OPT-OUT` or `PENDING`?
-- Creating `T_AND_C_PREFERENCE` on every publish of new T&C – causes huge fan-out per user.
+- A customer has one `T_AND_C_PREFERENCE` per T&C version.
+- A customer has one `MARKETING_PREFERENCE` per channel.
+- `PENDING` represents a T&C version that has been presented but not yet accepted or rejected.
+- Customers must resolve `PENDING` before accessing core functionality.
+- Marketing preferences are independent of T&C acceptance and can be updated at any time.
+
+### Notes
+
+- Other `CUSTOMER` fields are omitted for brevity.
+- `T_AND_C_PREFERENCE` has a composite primary key of `customerId` + `TAndCId`.
+- `MARKETING_PREFERENCE` has a composite primary key of `customerId` + `channel`.
+- `T_AND_C.id` uses `int` for simple version ordering.
+- A `T_AND_C_PREFERENCE` row is created when the T&C is presented to the customer.
+- Initial state is `PENDING`, updated to `OPT_IN` or `OPT_OUT` on user action.
+- On delete of `T_AND_C`, cascade delete related `T_AND_C_PREFERENCE` rows.
+- On delete of `CUSTOMER`, cascade delete related preference rows.
+
+#### Traps Avoided
+
+- Storing preferences as `bool` — does `false` mean `OPT_OUT` or `PENDING`?
+- Coupling marketing consent to T&C acceptance — they have different lifecycle rules.
+- Creating preference rows for all users on T&C publish — instead created lazily on presentation – huge-fan-out.

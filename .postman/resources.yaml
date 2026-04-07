@@ -13,4 +13,4 @@ cloudResources:
     ../postman/environments/Live.environment.yaml: b4ad7684-e8cc-581a-9e40-cec08dff3ddf
   collections:
     ../postman/collections/FeedFast PDPA Consent Management API MEEE: 26808089-516ecdcc-f2a5-4255-b4fc-42e7ae283dc6
-    ../postman/collections/FeedFast PDPA Consent Management API: 26808089-32de84a2-e425-4506-b4fc-b9c700d8ccf4
+    ../postman/collections/FeedFast PDPA Consent Management API: 26808089-5374b301-1f94-412b-99e7-67cf075f901c
