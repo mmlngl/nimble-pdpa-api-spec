@@ -5,11 +5,10 @@ description: >-
   or `OPT-OUT` are accepted — `PENDING` is system-managed and cannot be set
   here. `lastUpdated` is refreshed server-side on every update.
 
-
-  **Path params:** `customerId` (string), `tAndCId` (integer).  
+  **Path params:** `customerId` (string), `tAndCId` (integer).
 
   **Request body:** `preference` (string, required) — either `"OPT-IN"` or
-  `"OPT-OUT"`.  
+  `"OPT-OUT"`.
 
   **Returns:** the updated preference record.
 method: PATCH

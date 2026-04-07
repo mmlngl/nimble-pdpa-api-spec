@@ -1,3 +1,0 @@
-$kind: collection
-name: Preferences
-description: Endpoints for managing per-customer T&C consent preferences. Covers both reading/initialising a preference record and submitting an explicit opt-in or opt-out decision.

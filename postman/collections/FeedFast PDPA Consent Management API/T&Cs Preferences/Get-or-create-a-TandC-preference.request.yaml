@@ -6,7 +6,6 @@ description: >-
   201). This is the endpoint the app calls on login to decide whether to show
   the consent screen.
 
-
   **Path params:** `customerId` (string), `tAndCId` (integer).
 
   **Returns:** a preference record with `customerId`, `tAndCId`, `preference`
